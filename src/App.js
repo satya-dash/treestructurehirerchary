@@ -5,7 +5,7 @@ import Tree from './tree';
 
 class App extends Component {
 
-    callRecursive(ds){
+    /*callRecursive(ds){
         for(let i in ds){
             console.log('emp_name',ds[i].emp_name);
             console.log('team_name',ds[i].team_info.team_name);
@@ -15,8 +15,15 @@ class App extends Component {
                 }
             
         }
+    }*/
+    constructor(){
+        super();
+        this.state = {
+            tree: Tree
+        }
     }
     render() {
+        let {tree} = this.state;
         return (
           <div className="App">
             <header className="App-header">
@@ -25,16 +32,27 @@ class App extends Component {
             </header>
             <div className="App-intro">
                 {
-                    Object.values(Tree).map((el,i)=>{
+                    Object.values(tree).map((el,i)=>{
                         return (
                             <SmallTeam
                                 key={`${el.emp_name}-${i}`} 
                                 name={el.emp_name}
+                                emp_id={el.id}
                                 designation={el.role}
                                 team={el.team_info}
                                 showChildren={el.showChildren}
-                                callFromChild={()=>{
-                                    console.log('call from child',el);
+                                callFromChild={(emp_id)=>{
+                                    // console.log(37,'call from child',el,emp_id);
+                                    if(el.id === emp_id){
+                                        el.showChildren = !el.showChildren;
+                                    } else {
+                                        let temp_teams = el.team_info.teams;
+                                        for(let i_team in temp_teams){
+                                            temp_teams[i_team].showChildren = 
+                                                i_team === emp_id ? !temp_teams[i_team].showChildren : false;
+                                        }
+                                    }
+                                    this.setState({tree});
                                 }}
                             />
                         );
@@ -50,20 +68,17 @@ class SmallTeam extends React.Component {
     constructor(props){
         super(props);
         this.state = {
-            teamChange:true
+            teamChange:true,
+            team: props.team
         }
     }
-    changeShowChildren(){
-        let {name,designation,showChildren,team} = this.props;
-        console.log(name,showChildren);
-        this.props.showChildren= true;
-        this.setState({
-            teamChange:!this.state.teamChange
-        })
-        this.props.callFromChild();
+    changeShowChildren(emp_id){
+        // console.log(58,emp_id);
+        this.props.callFromChild(emp_id);
     }
     render(){
-        let {name,designation,showChildren,team} = this.props;
+        let {name,designation,showChildren,emp_id} = this.props;
+        let {team} = this.state;
         if(!team.team_status)
             return (
                 <div>Disabled</div>
@@ -87,11 +102,11 @@ class SmallTeam extends React.Component {
                             Emp Reporting: {Object.keys(team.teams).length}
                         </div>
                         <div  className="empDes">
-                            No of employee: {designation}
+                            No of employee: Not known
                         </div>
                         <div>
                             {Object.keys(team.teams).length ? 
-                                <div onClick={this.changeShowChildren.bind(this)}>
+                                <div onClick={this.changeShowChildren.bind(this,emp_id)}>
                                     {showChildren ?
                                         '-' : '+'
                                     }
@@ -112,12 +127,24 @@ class SmallTeam extends React.Component {
                                             <SmallTeam
                                                 key={`${el.emp_name}-${i}`} 
                                                 name={el.emp_name}
+                                                emp_id={el.id}
                                                 designation={el.role}
                                                 team={el.team_info}
                                                 showChildren={el.showChildren}
-                                                callFromChild={()=>{
-                                                    console.log('call from inner child',el);
-                                                    this.props.callFromChild();
+                                                callFromChild={(emp_id)=>{
+                                                    console.log(119,'call from inner child',emp_id,el.team_info.teams);
+                                                    if(el.team_info.teams && el.team_info.teams.hasOwnProperty(emp_id)){
+                                                        // console.log('match found',el.id,team.teams[el.id].team_info.teams);
+                                                        let temp_teams = team.teams[el.id].team_info.teams;
+                                                        for(let i_team in temp_teams){
+                                                            temp_teams[i_team].showChildren = 
+                                                                i_team === emp_id ? !temp_teams[i_team].showChildren : false;
+                                                        }
+                                                        this.setState({team});
+
+                                                    } else {
+                                                        this.props.callFromChild(emp_id);
+                                                    }
                                                 }}
                                             />
                                         );
