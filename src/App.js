@@ -17,7 +17,6 @@ class App extends Component {
         }
     }
     render() {
-    // this.callRecursive(ds);
         return (
           <div className="App">
             <header className="App-header">
@@ -51,41 +50,56 @@ class SmallTeam extends React.Component {
     constructor(props){
         super(props);
         this.state = {
-            team: props.team
+            teamChange:true
         }
     }
-
+    changeShowChildren(){
+        let {name,designation,showChildren,team} = this.props;
+        console.log(name,showChildren);
+        this.props.showChildren= true;
+        this.setState({
+            teamChange:!this.state.teamChange
+        })
+        this.props.callFromChild();
+    }
     render(){
-        let {name,designation,showChildren} = this.props;
-        let {team} = this.state;
-        console.log(name,team,showChildren);
+        let {name,designation,showChildren,team} = this.props;
         if(!team.team_status)
             return (
                 <div>Disabled</div>
             )
         return (
-            <div className="team-cnt">
-                <div>
-                    Team Name: {team.team_name}
-                </div>
-                <div>
-                    Name: {name}
-                </div>
-                <div>
-                    Designation: {designation}
-                </div>
-                <div>
-                    {Object.keys(team.teams).length ? 
-                        <div onClick={()=>{
-                            console.log(name,team);
-                            this.props.callFromChild();
-                        }}>
-                            {showChildren ?
-                                '-' : '+'
+            <div>
+                <div className="team-cnt">
+                    <div className="teamName">
+                        Team Name: {team.team_name}
+                    </div>
+                    <div className="empDet">
+                        <div className="empName">
+                            Name: {name}
+                        </div>
+                        <div  className="empDes">
+                            Designation: {designation}
+                        </div>
+                    </div>
+                    <div className="cmpDet">
+                        <div className="empName">
+                            Emp Reporting: {Object.keys(team.teams).length}
+                        </div>
+                        <div  className="empDes">
+                            No of employee: {designation}
+                        </div>
+                        <div>
+                            {Object.keys(team.teams).length ? 
+                                <div onClick={this.changeShowChildren.bind(this)}>
+                                    {showChildren ?
+                                        '-' : '+'
+                                    }
+                                </div>
+                                : null
                             }
                         </div>
-                        : null
-                    }
+                    </div>
                 </div>
                 
                     {

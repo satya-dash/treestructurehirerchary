@@ -23,7 +23,7 @@ module.exports = {
                         emp_name:'Elia Andre',
                         manager_id:'Damien_01',
                         role:'CFO',
-                        showChildren:false,
+                        showChildren:true,
                         team_info:{
                             team_status:true,
                             team_name:'Core Management',
